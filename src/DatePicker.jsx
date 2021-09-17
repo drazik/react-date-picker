@@ -213,6 +213,30 @@ export default class DatePicker extends PureComponent {
   }
 
   renderCalendar() {
+    const {
+      calendarClassName,
+      className,
+      onChange,
+      value,
+      renderCalendar,
+      ...calendarProps
+    } = this.props
+    
+    const calendar = <Calendar
+      className={calendarClassName}
+      onChange={this.onChange}
+      value={value || null}
+      {...calendarProps}
+    />
+
+    if (renderCalendar) {
+      return renderCalendar(calendar)
+    }
+
+    return this._renderCalendar()
+  }
+
+  _renderCalendar() {
     const { disableCalendar } = this.props;
     const { isOpen } = this.state;
 
@@ -225,6 +249,7 @@ export default class DatePicker extends PureComponent {
       className: datePickerClassName, // Unused, here to exclude it from calendarProps
       onChange,
       value,
+      renderCalendar,
       ...calendarProps
     } = this.props;
 
@@ -233,7 +258,7 @@ export default class DatePicker extends PureComponent {
     return (
       <Fit>
         <div className={mergeClassNames(className, `${className}--${isOpen ? 'open' : 'closed'}`)}>
-          <Calendar
+<Calendar
             className={calendarClassName}
             onChange={this.onChange}
             value={value || null}
