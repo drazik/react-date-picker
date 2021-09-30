@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { cloneElement, Component, createRef, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import makeEventProps from 'make-event-props';
 import mergeClassNames from 'merge-class-names';
@@ -28,7 +28,7 @@ export default class DatePicker extends PureComponent {
   state = {};
 
   componentDidMount() {
-    this.handleOutsideActionListeners();
+    // this.handleOutsideActionListeners();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -36,14 +36,14 @@ export default class DatePicker extends PureComponent {
     const { onCalendarClose, onCalendarOpen } = this.props;
 
     if (isOpen !== prevState.isOpen) {
-      this.handleOutsideActionListeners();
+      // this.handleOutsideActionListeners();
       const callback = isOpen ? onCalendarOpen : onCalendarClose;
       if (callback) callback();
     }
   }
 
   componentWillUnmount() {
-    this.handleOutsideActionListeners(false);
+    // this.handleOutsideActionListeners(false);
   }
 
   get eventProps() {
@@ -257,14 +257,16 @@ export default class DatePicker extends PureComponent {
 
     return (
       <Fit>
-        <div className={mergeClassNames(className, `${className}--${isOpen ? 'open' : 'closed'}`)}>
-<Calendar
-            className={calendarClassName}
-            onChange={this.onChange}
-            value={value || null}
-            {...calendarProps}
-          />
-        </div>
+        <ClickOutside action={this.onOutsideAction}>
+          <div className={mergeClassNames(className, `${className}--${isOpen ? 'open' : 'closed'}`)}>
+            <Calendar
+              className={calendarClassName}
+              onChange={this.onChange}
+              value={value || null}
+              {...calendarProps}
+            />
+          </div>
+        </ClickOutside>
       </Fit>
     );
   }
@@ -386,3 +388,29 @@ DatePicker.propTypes = {
   yearAriaLabel: PropTypes.string,
   yearPlaceholder: PropTypes.string,
 };
+
+const clickOutsideEvents = ["mousedown", "touchstart"]
+
+class ClickOutside extends Component {
+  ref = createRef(null)
+
+  listener = (event) => {
+    if (this.ref.current.contains(event.target)) {
+      return
+    }
+
+    this.props.action(event)
+  }
+
+  componentDidMount() {
+    clickOutsideEvents.forEach((event) => document.addEventListener(event, this.listener))
+  }
+
+  componentWillUnmount() {
+    clickOutsideEvents.forEach((event) => document.removeEventListener(event, this.listener))
+  }
+
+  render () {
+    return cloneElement(this.props.children, { ref: this.ref })
+  }
+}
