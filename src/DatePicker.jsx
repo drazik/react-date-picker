@@ -222,12 +222,16 @@ export default class DatePicker extends PureComponent {
       ...calendarProps
     } = this.props
     
-    const calendar = <Calendar
-      className={calendarClassName}
-      onChange={this.onChange}
-      value={value || null}
-      {...calendarProps}
-    />
+    const calendar = <ClickOutside action={this.closeCalendar}>
+      <div>
+        <Calendar
+          className={calendarClassName}
+          onChange={this.onChange}
+          value={value || null}
+          {...calendarProps}
+        />
+      </div>
+    </ClickOutside>
 
     if (renderCalendar) {
       return renderCalendar(calendar)
@@ -257,7 +261,7 @@ export default class DatePicker extends PureComponent {
 
     return (
       <Fit>
-        <ClickOutside action={this.onOutsideAction}>
+        <ClickOutside action={this.closeCalendar}>
           <div className={mergeClassNames(className, `${className}--${isOpen ? 'open' : 'closed'}`)}>
             <Calendar
               className={calendarClassName}
